@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visualizador de PDF</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+    #login-container, #signup-container {
+        width: 300px;
+        margin: 50px auto;
+        text-align: center;
+    }
+    #pdf-container {
+        width: 1000px;
+        margin: 50px auto;
+        text-align: center;
+    }
+    input, #file-input {
+        margin-top: 20px;
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+    }
+    button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+    }
+    #pdf-viewer {
+        width: 100%;
+        height: 1000px;
+    }
+    #pdf-container {
+        display: none;
+    }
+</style>
+</head>
+<body>
+
+<div id="login-container">
+    <h2>Inicio de sesión</h2>
+    <input type="text" id="login-username" placeholder="Usuario">
+    <input type="password" id="login-password" placeholder="Contraseña">
+    <button onclick="login()">Ingresar</button>
+    <p>¿No tienes una cuenta? <a href="#" onclick="showSignup()">Regístrate aquí</a></p>
+</div>
+
+<div id="signup-container" style="display:none;">
+    <h2>Registro de cuenta</h2>
+    <input type="text" id="signup-username" placeholder="Nombre de usuario">
+    <input type="text" id="signup-firstname" placeholder="Nombres">
+    <input type="text" id="signup-lastname" placeholder="Apellidos">
+    <input type="email" id="signup-email" placeholder="Correo electrónico">
+    <input type="password" id="signup-password" placeholder="Contraseña">
+    <button onclick="signup()">Registrarse</button>
+    <p>¿Ya tienes una cuenta? <a href="#" onclick="showLogin()">Inicia sesión</a></p>
+</div>
+
+<div id="pdf-container">
+    <h2>Cargar PDF</h2>
+    <input type="file" id="file-input" accept=".pdf" onchange="loadPdf(event)">
+    <br>
+    <embed id="pdf-viewer" src="" type="application/pdf" width="100%" height="600px">
+    <br>
+    <button onclick="logout()">Cerrar Sesión</button>
+</div>
+
+<script>
+    function login() {
+        var username = document.getElementById("login-username").value;
+        var password = document.getElementById("login-password").value;
+        
+        var storedUsers = JSON.parse(localStorage.getItem('users'));
+        if (storedUsers) {
+            var user = storedUsers.find(u => u.username === username && u.password === password);
+            if (user) {
+                document.getElementById("login-container").style.display = "none";
+                document.getElementById("pdf-container").style.display = "block";
+            } else {
+                alert("Usuario o contraseña incorrectos");
+            }
+        } else {
+            alert("No hay cuentas registradas.");
+        }
+    }
+
+    function signup() {
+        var username = document.getElementById("signup-username").value;
+        var firstName = document.getElementById("signup-firstname").value;
+        var lastName = document.getElementById("signup-lastname").value;
+        var email = document.getElementById("signup-email").value;
+        var password = document.getElementById("signup-password").value;
+
+        var user = {
+            username: username,
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            password: password
+        };
+
+        var storedUsers = JSON.parse(localStorage.getItem('users')) || [];
+        storedUsers.push(user);
+        localStorage.setItem('users', JSON.stringify(storedUsers));
+
+        alert("¡Cuenta creada con éxito! Por favor inicia sesión.");
+        showLogin();
+    }
+
+    function logout() {
+        document.getElementById("login-username").value = "";
+        document.getElementById("login-password").value = "";
+        document.getElementById("signup-username").value = "";
+        document.getElementById("signup-firstname").value = "";
+        document.getElementById("signup-lastname").value = "";
+        document.getElementById("signup-email").value = "";
+        document.getElementById("signup-password").value = "";
+
+        document.getElementById("login-container").style.display = "block";
+        document.getElementById("signup-container").style.display = "none";
+        document.getElementById("pdf-container").style.display = "none";
+    }
+
+    function loadPdf(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function(event) {
+            const pdfUrl = event.target.result;
+            document.getElementById("pdf-viewer").src = pdfUrl;
+        };
+
+        reader.readAsDataURL(file);
+    }
+
+    function showSignup() {
+        document.getElementById("login-container").style.display = "none";
+        document.getElementById("signup-container").style.display = "block";
+    }
+
+    function showLogin() {
+        document.getElementById("signup-container").style.display = "none";
+        document.getElementById("login-container").style.display = "block";
+    }
+</script>
+
+</body>
+</html>
